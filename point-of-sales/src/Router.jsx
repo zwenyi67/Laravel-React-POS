@@ -14,6 +14,7 @@ import CategoryCreate from './Views/CategoryCreate';
 import CategoryEdit from './Views/CategoryEdit';
 import Cart from './Views/Cart';
 import Receipt from './Views/Receipt';
+import Sales from './Views/Sales';
 
 const router = createBrowserRouter([
     {
@@ -49,8 +50,12 @@ const router = createBrowserRouter([
                 element: <Cart />,
             },
             {
-                path: '/cart/:id/receipt',
+                path: '/sales/:id/receipt',
                 element: <Receipt />,
+            },
+            {
+                path: '/sales',
+                element: <Sales/>,
             },
             {
                 path: '/contact',

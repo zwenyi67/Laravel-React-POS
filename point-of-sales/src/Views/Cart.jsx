@@ -9,6 +9,8 @@ export default function Cart() {
     const [message, setMessage] = useState();
     const defaultValue = 1;
     const navigate = useNavigate();
+    const typeRef = useRef();
+    const paidRef = useRef();
 
 
     const addToCart = (e) => {
@@ -17,7 +19,7 @@ export default function Cart() {
         const payload = {
             barcode: barcodeRef.current.value,
             quantity: quantityRef.current.value,
-        } 
+        }
 
         const barcode = barcodeRef.current.value.trim();
         if (!barcode) return;
@@ -61,16 +63,22 @@ export default function Cart() {
 
     const CartConfirm = (e) => {
         e.preventDefault();
-        
-        axiosClient.post('/cart/confirm', products)
-        .then(({data}) => {
-            setMessage(data.message);
-            //console.log(data.id);
-            navigate(`/cart/${data.id}/receipt`);
-        })
-        .catch(error => {
-            console.error('Error confirming cart:', error);
-        });
+
+        const formData = {
+            products: products,
+            total: total,
+            type: typeRef.current.value,
+            paid: paidRef.current.value,
+        }
+
+        axiosClient.post('/cart/confirm', formData)
+            .then(({ data }) => {
+                setMessage(data.message);
+                navigate(`/sales/${data.id}/receipt`);
+            })
+            .catch(error => {
+                console.error('Error confirming cart:', error);
+            });
     }
 
     return (
@@ -90,7 +98,7 @@ export default function Cart() {
                                 </div>
                                 <div >
                                     <label className='form-label'>-</label>
-                                <button type="submit" className='form-control btn btn-info'>Add to cart</button>
+                                    <button type="submit" className='form-control btn btn-info'>Add to cart</button>
                                 </div>
                             </div>
                         </form>
@@ -98,10 +106,10 @@ export default function Cart() {
                     <hr />
                     <div className="row">
 
-                        <div className="col-lg-7">
-                            {message && 
-                            <p>{message}</p>}
-                            
+                        <div className="col-lg-8">
+                            {message &&
+                                <p>{message}</p>}
+
                             <table id="example2" className="table table-bordered table-hover">
                                 <thead>
                                     <tr>
@@ -123,7 +131,11 @@ export default function Cart() {
                                                 </td>
                                                 <td>{index + 1}</td>
                                                 <td>{p.barcode}</td>
-                                                <td>{p.name}</td>
+                                                <td>
+                                                <img
+                                                 src={`http://localhost:8000/uploads/${p.image}`} alt={p.name} style={{ maxWidth: '50px', maxHeight: '50px' }} />
+                                                {p.name}
+                                            </td>
                                                 <td>${p.price}</td>
                                                 <td>{p.quantity}</td>
                                                 <td>${p.price * p.quantity}</td>
@@ -138,25 +150,44 @@ export default function Cart() {
                                     )}
                                     {products.length > 0 && (
                                         <>
-                                        <tr>
-                                            <td colSpan={6} className='text-center' style={{ fontWeight: 'bold' }}>Total Amount</td>
-                                            <td colSpan={1} style={{ fontWeight: 'bold' }}>
-                                                ${products.reduce((total, p) => total + (p.price * p.quantity), 0)}
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                        <td colSpan={7} className='text-right'> 
-                                        <form onSubmit={CartConfirm}>
-                                            <button className='btn btn-success'>Confirm the order</button>
-                                        </form>
-                                        </td>
-                                        </tr>
+                                            <tr>
+                                                <td colSpan={6} className='text-center' style={{ fontWeight: 'bold' }}>Total Amount</td>
+                                                <td colSpan={1} style={{ fontWeight: 'bold' }}>
+                                                    ${total = products.reduce((total, p) => total + (p.price * p.quantity), 0)}
+                                                </td>
+                                            </tr>
                                         </>
-                                        )}
+                                    )}
 
                                 </tbody>
                             </table>
                         </div>
+                        {products.length > 0 && (
+                        <div className="col-lg-4">
+                            <form onSubmit={CartConfirm} className='card p-4'>
+                                <div style={{ fontSize: '30px', fontWeight: 'bold' }} className='text-center mb-3'>Payment</div>
+                                <div className="mb-3">
+                                    <label className='form-label'>Payment Type</label>
+                                    <select className='form-control' ref={typeRef}>
+                                        <option value="1">Cash</option>
+                                        <option value="2">Mobile Banking</option>
+                                    </select>
+                                </div>
+                                <div className="mb-3" >
+                                    <label className="form-label">Paid Amount</label>
+                                    <input type="text" ref={paidRef} className='form-control'/>
+                                </div>
+                                <div className="mb-3">
+                                    <label className="form-label">Coupon</label>
+                                    <input type="text" className='form-control'/>
+                                </div>
+                                <div className="mb-3">
+                                    <label className="form-label">Member Point</label>
+                                    <input type="text" className='form-control'/>
+                                </div>
+                                <button className='btn btn-success'>Confirm the order</button>
+                            </form>
+                        </div> )}
                     </div>
                 </div>
             </div>

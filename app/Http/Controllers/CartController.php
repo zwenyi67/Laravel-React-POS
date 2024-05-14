@@ -58,9 +58,18 @@ class CartController extends Controller
             ];
         }
 
+        
+
         return response()->json([
             'id' => $sale->id,
             'products' => $products,
+            'sales' => [
+                'id' => $sale->id,
+                'type' => $sale->type,
+                'paid' => $sale->paid,
+                'total' => $sale->total,
+                'date' => $sale->created_at,
+            ]
         ]); 
     }
     
@@ -71,9 +80,13 @@ class CartController extends Controller
         public function confirm(Request $request) {
             
 
-            $jsonProducts = $request->getContent();
+            $jsonFormData = $request->getContent();
 
-            $products = json_decode($jsonProducts, true);
+            $formData = json_decode($jsonFormData, true);
+
+            $products = $formData['products'];
+
+            
 
             /* if(empty($products)) {
                 return response()->json(['message' => 'products are empty array'], 200);
@@ -82,7 +95,9 @@ class CartController extends Controller
             } */
 
             $sale = Sale::create([
-                'total' => 3453,
+                'total' => $formData['total'],
+                'type' => $formData['type'],
+                'paid' => $formData['paid'],
             ]);
 
             if(!empty($products) && is_array($products)) {

@@ -171,6 +171,14 @@ export default function DefaultLayout() {
                                         </p>
                                     </Link>
                                 </li>
+                                <li className="nav-item">
+                                    <Link to={'/sales'} className={`nav-link ${pathname.startsWith('/sales') ? 'active' : ''}`}>
+                                        <i className="nav-icon fas fa-th" />
+                                        <p>
+                                            Sales
+                                        </p>
+                                    </Link>
+                                </li>
                             </ul>
                         </nav>
                         {/* /.sidebar-menu */}
